@@ -10,15 +10,21 @@
 #include <tuple>
 #include <string>
 
+#include <QApplication> // Required for the application object
+#include <QWidget>      // Required for the base window widget
+#include <QLabel>      // Required for the base window widget
+#include <QVBoxLayout>
+
+
 
 std::string filterNumbers(const std::string& inputString) {
-    std::string filteredString;
-    for (char c : inputString) {
-        if (std::isdigit(c)) {
-            filteredString += c;
-        }
+  std::string filteredString;
+  for (char c : inputString) {
+    if (std::isdigit(c)) {
+      filteredString += c;
     }
-    return filteredString;
+  }
+  return filteredString;
 }
 
 
@@ -36,31 +42,40 @@ std::tuple<bool, int, std::string> toNumbers(const std::string& inputString) {
 }
 
 
-int main() {
-  using namespace std;
-  /* Declarations of variables */
-  std::string factArg;
-  int factorial_arg;
-  std::tuple<bool, int, std::string> toNumbers_val();
+
+int main(int argc, char *argv[])
+{
   
-  int fact (1);
-  bool cont_ask;
-  do {
-    cout << "Factorial of: ";
-    cin >> factArg;
-    std::tuple<bool,int,std::string> toNumbers_val = toNumbers(factArg);
-    cont_ask = std::get<0>(toNumbers_val);
-      if(!cont_ask) {
-      cout << "Numbers only please" << endl;
-      }else{
-	factorial_arg = std::get<1>(toNumbers_val);
-      }
-  } while(!cont_ask) ;
-  int i = 2;
-  while( i <= factorial_arg ) {
-    fact = fact * i;
-    i = i + 1;
-  }
-  cout << "The Factorial of " << factorial_arg << " is: " << fact << endl;
-  return 0;
+  // template <typename T> std::string type_name();
+  // Create a QApplication object. This is the central object for Qt applications,
+  // managing application-wide resources and the event loop.
+  QApplication app(argc, argv);
+  
+  // Create a QWidget object. When created without a parent, it acts as a top-level window.
+  // QWidget *window = new QWidget();
+  QWidget window;
+  // setCentralWidget(window);
+
+  QVBoxLayout *layout = new QVBoxLayout(window);
+
+  QLabel *pointOneLongLabel = new QLabel(QApplication::translate("windowlayout", "Longitude:"));
+
+  pointOneLongLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+  pointOneLongLabel->setText("first line\nsecond line");
+  pointOneLongLabel->setAlignment(Qt::AlignBottom | Qt::AlignRight);
+
+  layout->addWidget(pointOneLongLabel);
+  
+  // Set the title of the window.
+  window->setWindowTitle("My Simple Qt Window");
+
+  // Set the initial size of the window (width, height).
+  window->resize(400, 300);
+
+  // Show the window.
+  window->show();
+
+  // Start the Qt event loop. This makes the application responsive and handles
+  // user interactions until the window is closed.
+  return app.exec();
 }
