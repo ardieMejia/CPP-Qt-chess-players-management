@@ -51,6 +51,7 @@ std::tuple<bool, int, std::string> toNumbers(const std::string& inputString) {
 
 
 
+
 int main(int argc, char *argv[])
 {
   
@@ -66,49 +67,58 @@ int main(int argc, char *argv[])
   Ui::MainWindow ui;
   ui.setupUi(&widget);
 
+  ui.label->setText("helloooo");
+
+  QObject::connect(ui.pushButton, &QPushButton::clicked, [&]() {
+    ui.textEdit->append("Text inserted by button.\n"); // Appends text to a new line
+    // Or textEdit->insertPlainText("Text inserted by button."); for plain text
+  });
+   
+
+
+
   widget.show();
   // return app.exec();
 
   // setCentralWidget(window);
 
-  QVBoxLayout *layout = new QVBoxLayout(window);
+  // QVBoxLayout *layout = new QVBoxLayout(window);
 
   
-  QLabel *pointOneLongLabel = new QLabel(QApplication::translate("windowlayout", "Longitude:"));
-  pointOneLongLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-  pointOneLongLabel->setText("first line\nsecond line");
-  pointOneLongLabel->setAlignment(Qt::AlignBottom | Qt::AlignRight);
+  // QLabel *pointOneLongLabel = new QLabel(QApplication::translate("windowlayout", "Longitude:"));
+  // pointOneLongLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+  // pointOneLongLabel->setText("first line\nsecond line");
+  // pointOneLongLabel->setAlignment(Qt::AlignBottom | Qt::AlignRight);
 
   
-  QLabel *pointTwoLongLabel = new QLabel(QApplication::translate("windowlayout", "whatever"));
-  pointTwoLongLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-  pointTwoLongLabel->setText("my nameis peter parker");
-  pointTwoLongLabel->setAlignment(Qt::AlignBottom | Qt::AlignRight);
+  // QLabel *pointTwoLongLabel = new QLabel(QApplication::translate("windowlayout", "whatever"));
+  // pointTwoLongLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+  // pointTwoLongLabel->setText("my nameis peter parker");
+  // pointTwoLongLabel->setAlignment(Qt::AlignBottom | Qt::AlignRight);
 
-  QTextEdit *textEdit = new QTextEdit();
-  QPushButton *pushButton = new QPushButton();
+  // QTextEdit *textEdit = new QTextEdit();
+  // QPushButton *pushButton = new QPushButton();
   
 
-  layout->addWidget(pointOneLongLabel);
-  layout->addWidget(pointTwoLongLabel);
-  layout->addWidget(textEdit);
-  layout->addWidget(pushButton);
+  // layout->addWidget(pointOneLongLabel);
+  // layout->addWidget(pointTwoLongLabel);
+  // layout->addWidget(textEdit);
+  // layout->addWidget(pushButton);
 
-  QObject::connect(pushButton, &QPushButton::clicked, [textEdit]() {
-        textEdit->append("Text inserted by button.\n"); // Appends text to a new line
-        // Or textEdit->insertPlainText("Text inserted by button."); for plain text
-    });
+
   
   // Set the title of the window.
-  window->setWindowTitle("My Simple Qt Window");
+
 
   // Set the initial size of the window (width, height).
-  window->resize(400, 300);
+
 
   // Show the window.
-  window->show();
+
 
   // Start the Qt event loop. This makes the application responsive and handles
   // user interactions until the window is closed.
+
   return app.exec();
 }
+
