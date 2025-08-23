@@ -1,0 +1,8 @@
+* Better links:
+** https://stuff.mit.edu/afs/athena/software/texmaker_v5.0.2/qt57/doc/qtwidgets/modelview.html
+** 
+* Drag and drop possibly:
+** https://stackoverflow.com/questions/45077778/qtableview-qabstracttablemodel-move-rows-via-dragndrop
+** https://stackoverflow.com/questions/15906864/drag-and-drop-support-when-subclassing-from-qabstractitemmodel
+** https://doc.qt.io/qt-6/qtquick-draganddrop-example.html
+** 
