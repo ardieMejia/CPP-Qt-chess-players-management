@@ -6,3 +6,295 @@
 ** https://stackoverflow.com/questions/15906864/drag-and-drop-support-when-subclassing-from-qabstractitemmodel
 ** https://doc.qt.io/qt-6/qtquick-draganddrop-example.html
 ** 
+* READ THIS, FUCK YOU:
+** https://doc.qt.io/archives/qt-5.15/model-view-programming.html
+** https://doc.qt.io/archives/qt-5.15/model-view-programming.html#creating-new-models
+** https://felgo.com/doc/qt/qtquick-modelviewsdata-cppmodels/
+* To try(getting selected row):
+** First we try to understand QModelIndex:
+#+begin_src c++
+
+  #include <QCoreApplication>
+#include <QAbstractListModel>
+#include <QDebug>
+
+// Define a simple custom model
+class MyListModel : public QAbstractListModel
+{
+    Q_OBJECT
+public:
+    explicit MyListModel(QObject *parent = nullptr)
+        : QAbstractListModel(parent)
+    {
+        m_data << "Item 1" << "Item 2" << "Item 3";
+    }
+
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override
+    {
+        if (parent.isValid())
+            return 0; // For a list model, only the root has children
+        return m_data.size();
+    }
+
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override
+    {
+        if (!index.isValid() || index.row() >= m_data.size())
+            return QVariant();
+
+        if (role == Qt::DisplayRole)
+            return m_data.at(index.row());
+        
+        return QVariant();
+    }
+
+private:
+    QStringList m_data;
+};
+
+int main(int argc, char *argv[])
+{
+    QCoreApplication a(argc, argv);
+
+    MyListModel model;
+
+    // Create a QModelIndex for the first item (row 0, column 0, parent is invalid/root)
+    QModelIndex index0 = model.index(0, 0, QModelIndex()); 
+    if (index0.isValid()) {
+        qDebug() << "Data at index0:" << model.data(index0, Qt::DisplayRole).toString();
+        qDebug() << "Row of index0:" << index0.row();
+        qDebug() << "Column of index0:" << index0.column();
+        qDebug() << "Is index0 valid?" << index0.isValid();
+    }
+
+    // Create a QModelIndex for the second item (row 1, column 0)
+    QModelIndex index1 = model.index(1, 0, QModelIndex());
+    if (index1.isValid()) {
+        qDebug() << "Data at index1:" << model.data(index1, Qt::DisplayRole).toString();
+    }
+
+    // Example of an invalid QModelIndex
+    QModelIndex invalidIndex = model.index(99, 0, QModelIndex()); // Out of bounds
+    qDebug() << "Is invalidIndex valid?" << invalidIndex.isValid();
+
+    return a.exec();
+}
+
+#+end_src
+** Then we try to understand getting it from selection.
+** Lesson: QItemSelectionModel is part of the View rather than the Data Model, in our case, thats the .ui file
+#+begin_src c++
+
+  #include <QTableView>
+#include <QStandardItemModel>
+#include <QItemSelectionModel>
+#include <QDebug>
+
+// Assuming 'tableView' is a pointer to your QTableView instance
+QTableView* tableView = new QTableView(); 
+// ... (populate tableView with a model, e.g., QStandardItemModel)
+
+// Get the selection model
+QItemSelectionModel* selectionModel = tableView->selectionModel();
+
+// Get the QModelIndex of the currently selected cell
+QModelIndex selectedIndex = selectionModel->currentIndex();
+
+// Now you can use 'selectedIndex' to access information about the selected cell
+if (selectedIndex.isValid()) {
+    qDebug() << "Selected row:" << selectedIndex.row();
+    qDebug() << "Selected column:" << selectedIndex.column();
+    qDebug() << "Data at selected cell:" << selectedIndex.data().toString();
+} else {
+    qDebug() << "No cell is currently selected.";
+}
+
+#+end_src
+* Try using Roles to turn on or off dispay of data using clicks
+** MyModel.h
+#+begin_src c++
+
+  #ifndef MYMODEL_H
+#define MYMODEL_H
+
+#include <QAbstractListModel>
+#include <QVariant>
+#include <QList>
+
+struct MyItemData {
+    QString text;
+    bool visible;
+};
+
+class MyModel : public QAbstractListModel
+{
+    Q_OBJECT
+
+public:
+    explicit MyModel(QObject *parent = nullptr);
+
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
+
+    // Custom role for visibility
+    enum CustomRoles {
+        VisibilityRole = Qt::UserRole + 1
+    };
+
+    void toggleVisibility(const QModelIndex &index);
+
+private:
+    QList<MyItemData> m_data;
+};
+
+#endif // MYMODEL_H
+
+#+end_src
+** MyModel.cpp
+#+begin_src c++
+
+  #include "MyModel.h"
+
+MyModel::MyModel(QObject *parent) : QAbstractListModel(parent)
+{
+    m_data << MyItemData{"Item 1", true} << MyItemData{"Item 2", true} << MyItemData{"Item 3", true};
+}
+
+int MyModel::rowCount(const QModelIndex &parent) const
+{
+    Q_UNUSED(parent);
+    return m_data.size();
+}
+
+QVariant MyModel::data(const QModelIndex &index, int role) const
+{
+    if (!index.isValid() || index.row() >= m_data.size())
+        return QVariant();
+
+    const MyItemData &item = m_data.at(index.row());
+
+    if (role == Qt::DisplayRole) {
+        if (item.visible) {
+            return item.text;
+        } else {
+            return QVariant(); // Return empty QVariant to hide the text
+        }
+    } else if (role == VisibilityRole) {
+        return item.visible;
+    }
+
+    return QVariant();
+}
+
+bool MyModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    if (!index.isValid() || index.row() >= m_data.size())
+        return false;
+
+    MyItemData &item = m_data[index.row()];
+
+    if (role == VisibilityRole) {
+        bool newVisibility = value.toBool();
+        if (item.visible != newVisibility) {
+            item.visible = newVisibility;
+            emit dataChanged(index, index, {Qt::DisplayRole, VisibilityRole}); // Notify view of change
+            return true;
+        }
+    } else if (role == Qt::EditRole) {
+        item.text = value.toString();
+        emit dataChanged(index, index, {Qt::DisplayRole});
+        return true;
+    }
+
+    return false;
+}
+
+void MyModel::toggleVisibility(const QModelIndex &index)
+{
+    if (index.isValid() && index.row() < m_data.size()) {
+        bool currentVisibility = data(index, VisibilityRole).toBool();
+        setData(index, !currentVisibility, VisibilityRole);
+    }
+}
+
+#+end_src
+** MainWindow.h
+#+begin_src c++
+
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
+
+#include <QMainWindow>
+#include <QListView>
+#include "MyModel.h"
+
+class MainWindow : public QMainWindow
+{
+    Q_OBJECT
+
+public:
+    explicit MainWindow(QWidget *parent = nullptr);
+    ~MainWindow();
+
+private slots:
+    void onItemClicked(const QModelIndex &index);
+
+private:
+    QListView *m_listView;
+    MyModel *m_model;
+};
+
+#endif // MAINWINDOW_H
+
+#+end_src
+** Mainwindow.cpp
+#+begin_src c++
+
+  #include "MainWindow.h"
+#include <QVBoxLayout>
+
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
+{
+    QWidget *centralWidget = new QWidget(this);
+    setCentralWidget(centralWidget);
+
+    QVBoxLayout *layout = new QVBoxLayout(centralWidget);
+
+    m_listView = new QListView(this);
+    m_model = new MyModel(this);
+    m_listView->setModel(m_model);
+
+    layout->addWidget(m_listView);
+
+    connect(m_listView, &QListView::clicked, this, &MainWindow::onItemClicked);
+}
+
+MainWindow::~MainWindow()
+{
+}
+
+void MainWindow::onItemClicked(const QModelIndex &index)
+{
+    m_model->toggleVisibility(index);
+}
+
+
+
+#+end_src
+** main.cpp
+#+begin_src c++
+
+
+  #include <QApplication>
+#include "MainWindow.h"
+
+int main(int argc, char *argv[])
+{
+    QApplication a(argc, argv);
+    MainWindow w;
+    w.show();
+    return a.exec();
+}
+
+
+#+end_src
