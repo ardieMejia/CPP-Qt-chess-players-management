@@ -27,7 +27,7 @@ private slots:
   void on_pushButton_2_clicked();
   void on_pushButton_3_clicked();
   void on_pushButton_4_clicked();
-  void on_pushButton_clicked(); // Slot for a button named 'myButton'
+  void on_pushButton_clicked();
   void on_button_saveUser_clicked();
 public slots:
   void test_function(int index);

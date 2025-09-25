@@ -8,8 +8,9 @@
 #include <QSqlError>
 #include <QDebug>
 #include <QMessageBox>
-// #include "insertuserwindow.h"
-
+#include "insertuserwindow.h"
+#include "database.h"
+#include <QVariant>
 
   
 
@@ -26,11 +27,20 @@ AdminWindow::AdminWindow(QWidget *parent)
   ui->label->setText("This label shows status (success/error) of recent activity ");
   // ===== Activity label
   
-  if (QMessageBox::Yes == QMessageBox::question(this, "Continue Database from scratch (removing all previous DB entries)?", "No!", QMessageBox::Yes | QMessageBox::No)){
-    _restart_database();
-  }
-    
+  // if (QMessageBox::Yes == QMessageBox::question(this, "Continue Database from scratch (removing all previous DB entries)?", "No!", QMessageBox::Yes | QMessageBox::No)){
+  //   _restart_database();
+  // }
 
+
+  menubar = new QMenuBar(this);
+  fileMenu = menubar->addMenu(tr("&Database"));
+  // fileMenu = new QMenu();
+  QAction *actionDnR = new QAction("Drop and Recreate", this);
+  fileMenu->addAction(actionDnR); 
+  // menubar->addMenu(fileMenu);
+
+  connect(actionDnR, &QAction::triggered, this, &AdminWindow::_restart_database);
+  // connect(ui->textEdit_ssync, &QTextEdit::textChanged, this, &MainWindow::test_text_edit);
 
   
 }
@@ -44,33 +54,20 @@ AdminWindow::~AdminWindow()
 
 void AdminWindow::_restart_database()
 {
-  // Accessing a QLabel named 'myLabel'
+
   ui->textEdit->append("Text inserted by button.\n"); // Appends text to a new line
 
 
 
-  // ui->label->setAlignment(Qt::AlignTop);
-    
-  QSqlDatabase db = QSqlDatabase::addDatabase("QPSQL");
 
-
-  db.setHostName("dpg-d37auere5dus739709qg-a.singapore-postgres.render.com");
-  db.setPort(5432); // Default PostgreSQL port
-  db.setDatabaseName("vanilla_postgresql_1");
-  db.setUserName("vanilla_postgresql_1_user");
-  db.setPassword("2hiE2Y8h6GQr9vpnvcd71PS1WBDWsEi4");
-
-  // qDebug() << "attempting to connect";
-
-  if (!db.open()) {
-    // qDebug() << "Error: Failed to connect to database:" << db.lastError().text();
-    return;
-  } else {
-
-    ui->label->setText("Connected to database!");
-  }
-
+  QVariant resultString = _openDatabase();
   
+  
+  
+
+  QSqlDatabase db = QSqlDatabase::database("_render_connection_db");
+  
+  // std::cout << db;
   QSqlQuery query(db);
 
   QString queryDropAll = "DROP SCHEMA public CASCADE";
@@ -80,27 +77,27 @@ void AdminWindow::_restart_database()
 
 
   if (query.exec(queryDropAll)){
-    // qDebug() << "Table dropped successfully!!" ;
+    qDebug() << "Table dropped successfully!!" ;
   }else{
-    // qDebug() << "Something went wrong" << query.lastError().text();
+    qDebug() << "Something went wrong" << query.lastError().text();
   }
   
   if (query.exec(queryRecreateAll)){
-    // qDebug() << "Table  successfully!!" ;
+    qDebug() << "Table  created successfully!!" ;
   }else{
-    // qDebug() << "Something went wrong" << query.lastError().text();
+    qDebug() << "Something went wrong" << query.lastError().text();
   }
   
   if (query.exec(queryGrantPost)){
-    // qDebug() << "Table  successfully!!" ;
+    qDebug() << "Table granted to postgresql successfully!!" ;
   }else{
-    // qDebug() << "Something went wrong" << query.lastError().text();
+    qDebug() << "Something went wrong" << query.lastError().text();
   }
   
   if (query.exec(queryGrantPublic)){
-    // qDebug() << "Table  successfully!!" ;
+    qDebug() << "Table  granted to public successfully!!" ;
   }else{
-    // qDebug() << "Something went wrong" << query.lastError().text();
+    qDebug() << "Something went wrong" << query.lastError().text();
   }
   
 
@@ -111,15 +108,15 @@ void AdminWindow::_restart_database()
     ");";
   
   if (query.exec(queryCreateUsers)){
-    // qDebug() << "Table created successfully!!" ;
+    qDebug() << "Table created successfully!!" ;
       }else{
-    // qDebug() << "Something went wrong" << query.lastError().text();
+    qDebug() << "Something went wrong" << query.lastError().text();
   }
   
 
+  db.close();  
   
-  
-  db.close(); 
+  // _closeDatabase();
 
 
 }
@@ -129,9 +126,11 @@ void AdminWindow::_restart_database()
 
 
 
-// void AdminWindow::on_insertUserDialog_clicked(){
-//   InsertUserWindow *insertuserwindow = new InsertUserWindow();
-// }
+void AdminWindow::on_insertUserDialog_clicked(){
+  qDebug() << "testing";
+  InsertUserWindow *insertuserwindow = new InsertUserWindow();
+  insertuserwindow->show();
+}
 
 
 

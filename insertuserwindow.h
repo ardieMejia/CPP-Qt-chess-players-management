@@ -21,9 +21,11 @@ class InsertUserWindow : public QMainWindow
 public:
   InsertUserWindow(QWidget *parent = nullptr);
   ~InsertUserWindow();
+  void _restart_database();
 
 
 private slots:
+  void on_insertUser_clicked();
 
 public slots:
 

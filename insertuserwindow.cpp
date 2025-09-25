@@ -21,14 +21,6 @@ InsertUserWindow::InsertUserWindow(QWidget *parent)
   ui->setupUi(this);
 
 
-
-  
-  // if (QMessageBox::Yes == QMessageBox::question(this, "Continue Database from scratch (removing all previous DB entries)?", "No!", QMessageBox::Yes | QMessageBox::No)){
-  //   _restart_database();
-  // }
-    
-
-
   
 }
 
@@ -38,6 +30,19 @@ InsertUserWindow::~InsertUserWindow()
 }
 
 
+
+void InsertUserWindow::on_insertUser_clicked(){
+  QSqlQuery query;
+  query.prepare("INSERT INTO users (name, age) "
+		"VALUES (:name, :age)");
+  // query.bindValue(":id", 1001);
+  // qDebug() << "textstring get " <<;
+  QString name = ui->textEditName->toPlainText();
+  QString age = ui->textEditAge->toPlainText();
+  query.bindValue(":name", name);
+  query.bindValue(":age", age);
+  query.exec();
+}
 
 
 

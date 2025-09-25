@@ -4,7 +4,8 @@
 #include <QMainWindow>
 #include <QLabel>
 #include <QStringListModel>
-
+#include <QMenuBar>
+#include <QMenu>
 
 #include "specialbox.h"
 #include "table.h"
@@ -21,10 +22,10 @@ public:
   AdminWindow(QWidget *parent = nullptr);
   ~AdminWindow();
   void _restart_database();
-  void on_insertUserDialog_clicked(){
   /* QString toPlainText(); */
 
 private slots:
+  void on_insertUserDialog_clicked();
   /* void on_pushButton_2_clicked(); */
   /* void on_pushButton_3_clicked(); */
   /* void on_pushButton_4_clicked(); */
@@ -33,11 +34,15 @@ private slots:
 public slots:
   /* void test_function(int index); */
   /* void test_text_edit(); */
-  
+
+
+
 
 
 private:
   Ui::AdminWindow *ui;
+  QMenuBar *menubar;
+  QMenu *fileMenu;
   /* QLabel *myLabel; */
   /* QStringListModel *a_model; */
   /* QStringListModel *model2; */
