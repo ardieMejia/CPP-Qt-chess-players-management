@@ -152,6 +152,19 @@
      </rect>
     </property>
    </widget>
+   <widget class="QPushButton" name="updateUser">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>560</y>
+      <width>129</width>
+      <height>33</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Update User</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

@@ -7,6 +7,7 @@
 #include <QSqlQueryModel>
 #include <QSqlRecord>
 #include <QVariant>
+#include <QStandardItemModel>
 
 // #include <QDebug>
 
@@ -31,7 +32,6 @@ private slots:
   // void on_pushButton_2_clicked();
   // void on_pushButton_3_clicked();
   // void on_pushButton_4_clicked();
-  void on_updateDatabase_clicked();
   void on_pushButton_clicked();
   void on_buttonRefresh_clicked();
   void on_buttonDeleteSelection_clicked();
@@ -39,6 +39,7 @@ private slots:
   void deleteUser(QVector<int> &arr);
   void viewGetUpdate(const QModelIndex &index);
   void on_insertUserDialog_clicked();
+  void on_updateUser_clicked();
 
 public slots:
   void test_function(int index);
@@ -53,8 +54,13 @@ private:
   QStringListModel *model2;
   QSqlQueryModel *modelUser;
   QString textInput_model;
+  // QAbstractItemModel *testmodel;
+
+  QStandardItemModel *modelCurrentItem;
   // QAbstractItemModel modelTableUserAbstract;
   // QSqlRecord *recordUser const;
+
+
 
 
 };

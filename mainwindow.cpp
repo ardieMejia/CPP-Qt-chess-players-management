@@ -8,6 +8,7 @@
 #include <QSqlQuery>
 #include <QSqlQueryModel>
 #include <QSqlTableModel>
+#include <QSqlField>
 #include <QSqlError>
 #include <QDebug>
 #include <QTableView>
@@ -16,6 +17,7 @@
 #include <QVector>
 #include "database.h"
 #include <QMessageBox>
+#include <QDir>
 // #include <QSqlRecord>
 #include "insertuserwindow.h"
 
@@ -119,6 +121,16 @@ void MainWindow::viewGetUpdate(const QModelIndex &index){
 
   qDebug() << index.row();
 
+// ================================================== just a test
+
+  const QAbstractItemModel *testmodel = index.model();
+  qDebug() << "testmodel:" << testmodel;
+
+  qDebug() << QDir::currentPath();
+  
+// ================================================== just a test
+
+  
 
   
   
@@ -126,18 +138,29 @@ void MainWindow::viewGetUpdate(const QModelIndex &index){
 
     
     
-    // QSqlRecord recordUser =
-    // modelUser->record(index.row());
+    QSqlRecord recordUser;
+    recordUser = modelUser->record(index.row());
 
 
 
-    QStandardItemModel *model = new QStandardItemModel(1, 3);
-
-    model->setHeaderData(0, Qt::Horizontal, "ID");
-    model->setHeaderData(1, Qt::Horizontal, "NAME");
-    model->setHeaderData(2, Qt::Horizontal, "AGE");
     
-    ui->userUpdateView->setModel(model);
+    modelCurrentItem = new QStandardItemModel(1, recordUser.count());
+    // QTableView *modelTableUser = new QTableView();
+
+
+    for (int column = 0; column < 3; column++){
+      modelCurrentItem->setHeaderData(column, Qt::Horizontal, recordUser.fieldName(column));
+      QSqlField fieldSql = recordUser.field(column);
+      QString stringField = fieldSql.value().toString();
+      QStandardItem *item = new QStandardItem(stringField);
+      modelCurrentItem->setItem(0,column,item);
+    }
+    
+    ui->userUpdateView->setModel(modelCurrentItem);
+    ui->userUpdateView->setEditTriggers(QAbstractItemView::DoubleClicked);     
+      // setSelectionBehavior(QAbstractItemView::SelectRows);
+
+    
 
     
     // QSqlTableModel modelTableUser;
@@ -168,6 +191,15 @@ void MainWindow::on_buttonRefresh_clicked (){
     modelUser = new QSqlQueryModel();
     modelUser->setQuery(query);
 
+
+
+    qDebug() << modelUser;
+
+      // if (!db.open()) {
+      //   QVariant errorString = "Error: Failed to connect to database:" + db.lastError().text();
+      // 	qDebug() << errorString;
+      // }
+    
     ui->userTableView->setModel(modelUser);
     ui->userTableView->setEditTriggers(QAbstractItemView::DoubleClicked);
     ui->userTableView->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -175,6 +207,8 @@ void MainWindow::on_buttonRefresh_clicked (){
 
     ui->userTableView->show();
 
+
+    
     
   }  
 }
@@ -269,11 +303,54 @@ void MainWindow::on_buttonTableExists_clicked (){
 
 
 
-void MainWindow::on_updateDatabase_clicked()
+void MainWindow::on_updateUser_clicked()
 {
 
-  
+  bool var1 = false;
+  QVector<QString> values;
+    if (modelCurrentItem){
+      
+      qDebug() << modelCurrentItem;
+      qDebug() << modelCurrentItem->item(0,0)->text();
+      for(int i=0; i<modelCurrentItem->columnCount();i++){
+	
+	qDebug() << "what";
+	// qDebug() << modelCurrentItem->headerData(0).toString();
+	// qDebug() << modelCurrentItem->item(0,i)->text();
+	  // arr.append(index.data().toInt());
+	values.append(modelCurrentItem->item(0,i)->text());
+      }
+      
+      
+    QSqlDatabase db = QSqlDatabase::database("_render_connection_db");
+    QSqlQuery queryUpdate(db);
 
+
+    bool ok;
+    int _id = modelCurrentItem->item(0,0)->text().toInt(&ok);
+    if (!ok){
+      qDebug() << "oops";
+    }
+
+    queryUpdate.prepare("UPDATE users SET name = :name, age = :age WHERE id = :id");
+    queryUpdate.bindValue(":name", values.at(1));
+    queryUpdate.bindValue(":age", values.at(2));
+    queryUpdate.bindValue(":id", _id);
+
+
+
+    bool result = queryUpdate.exec();
+    if(result){
+      qDebug() << "fine";
+    }
+    QSqlError error = queryUpdate.lastError();
+    qDebug() << error;
+    }
+
+
+    
+
+  qDebug() << "here we know";
 
 
   
