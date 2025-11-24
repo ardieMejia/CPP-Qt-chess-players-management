@@ -66,10 +66,10 @@ MainWindow::MainWindow(QWidget *parent)
 
 
 
-  DBconnectionStatus g_current_connection_status;
+  // DBconnectionStatus g_current_connection_status;
 
-  g_current_connection_status.status = false;
-  g_current_connection_status.statusString = "";
+  // g_current_connection_status.status = false;
+  // g_current_connection_status.statusString = "";
   
   g_current_connection_status = _openDatabase();
 
@@ -336,8 +336,10 @@ void MainWindow::on_buttonTableExists_clicked (){
   // qDebug() << result;
   // qDebug() << result;
 
-  // defining is a f***ing misnomer, f*** you C++
-  DBconnectionStatus g_current_connection_status;
+
+  // DBconnectionStatus g_current_connection_status;
+
+  qDebug() << QString::fromStdString(g_current_connection_status.statusString);
 
   if(g_current_connection_status.status){    
     // isUsersTableFilled = true;
