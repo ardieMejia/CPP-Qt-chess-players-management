@@ -1,3 +1,5 @@
+#ifndef DATABASE_H
+#define DATABASE_H
 #pragma once // Ensures the header is included only once
 
 
@@ -20,7 +22,10 @@ struct DBconnectionStatus {
   std::string statusString;
 };
 
-/* extern DBconnectionStatus g_current_connection_status; */
+extern DBconnectionStatus g_current_connection_status;
 
 
 DBconnectionStatus _openDatabase();
+
+
+#endif

@@ -13,6 +13,12 @@
 
 
 
+DBconnectionStatus g_current_connection_status = {false, ""};
+// DBconnectionStatus g_current_connection_status.statusString = "";
+
+
+
+
 
 
 
